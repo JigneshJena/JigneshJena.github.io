@@ -1420,9 +1420,7 @@
     }
 
     .contact-note::before {
-      content: '//';
-      color: var(--green);
-      font-weight: 700;
+      display: none;
     }
 
     .clinks {
@@ -2602,24 +2600,30 @@
     const revObs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }); }, { threshold: .06 });
     document.querySelectorAll('.rv').forEach(el => revObs.observe(el));
 
-    /* ACTIVE NAV */
+    /* ACTIVE NAV — scroll based */
     const sections = [...document.querySelectorAll('section[id]')];
     const navLinks = [...document.querySelectorAll('.nav-item a')];
     const mobLinks = [...document.querySelectorAll('.mob-link')];
-    const navObs = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          navLinks.forEach(a => a.classList.remove('active'));
-          mobLinks.forEach(a => a.classList.remove('active'));
-          const id = e.target.id;
-          const da = document.querySelector(`.nav-item a[href="#${id}"]`);
-          const ma = document.querySelector(`.mob-link[href="#${id}"]`);
-          if (da) da.classList.add('active');
-          if (ma) ma.classList.add('active');
-        }
+
+    function setActive(id) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      mobLinks.forEach(a => a.classList.remove('active'));
+      const da = document.querySelector(`.nav-item a[href="#${id}"]`);
+      const ma = document.querySelector(`.mob-link[href="#${id}"]`);
+      if (da) da.classList.add('active');
+      if (ma) ma.classList.add('active');
+    }
+
+    function onScroll() {
+      const scrollY = window.scrollY + window.innerHeight * 0.35;
+      let current = sections[0].id;
+      sections.forEach(sec => {
+        if (sec.offsetTop <= scrollY) current = sec.id;
       });
-    }, { threshold: .35, rootMargin: '-8% 0px -50% 0px' });
-    sections.forEach(s => navObs.observe(s));
+      setActive(current);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
 
     /* MOBILE HAMBURGER */
     const ham = document.getElementById('ham');
